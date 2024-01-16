@@ -614,8 +614,8 @@ func IsInt(val any, minAndMax ...int64) (ok bool) {
 	if val == nil {
 		return false
 	}
-
-	intVal, err := valueToInt64(val, true)
+	// Customization: Replace strict value:true -> false; to validate float32, float64 and string type of data. As it always gave error(i.e. false) in parsing time.
+	intVal, err := valueToInt64(val, false)
 	if err != nil {
 		return false
 	}
