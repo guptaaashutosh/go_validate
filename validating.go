@@ -82,7 +82,7 @@ func (v *Validation) Validate(scene ...string) bool {
 	}
 
 	// apply filter rules.
-	if !v.Filtering() && v.StopOnError {
+	if false == v.Filtering() && v.StopOnError {
 		return false
 	}
 
