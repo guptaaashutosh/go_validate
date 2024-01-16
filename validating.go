@@ -100,7 +100,7 @@ func (r *Rule) Apply(v *Validation) (stop bool) {
 		return
 	}
 
-	// has beforeFunc and it returns FALSE, skip validate
+	// has beforeFunc and it return FALSE, skip validate
 	if r.beforeFunc != nil && !r.beforeFunc(v) {
 		return
 	}
@@ -133,11 +133,12 @@ func (r *Rule) Apply(v *Validation) (stop bool) {
 		// get field value. val, exist := v.Get(field)
 		val, exist, isDefault := v.GetWithDefault(field)
 
-		// value not exists but has default value
+		// not exists but has default value
 		if isDefault {
 			// update source data field value and re-set value
 			val, err := v.updateValue(field, val)
 			if err != nil {
+				// panicf(err.Error())
 				v.AddErrorf(field, err.Error())
 				if v.StopOnError {
 					return true
@@ -147,7 +148,8 @@ func (r *Rule) Apply(v *Validation) (stop bool) {
 
 			// dont need check default value
 			if !v.CheckDefault {
-				v.safeData[field] = val // save validated value.
+				// save validated value.
+				v.safeData[field] = val
 				continue
 			}
 
@@ -159,14 +161,15 @@ func (r *Rule) Apply(v *Validation) (stop bool) {
 
 		// apply filter func.
 		if exist && r.filterFunc != nil {
-			if val, err = r.filterFunc(val); err != nil {
-				v.AddError(filterError, filterError, field+": "+err.Error())
+			if val, err = r.filterFunc(val); err != nil { // has error
+				v.AddError(filterError, filterError, err.Error())
 				return true
 			}
 
 			// update source field value
 			newVal, err := v.updateValue(field, val)
 			if err != nil {
+				// panicf(err.Error())
 				v.AddErrorf(field, err.Error())
 				if v.StopOnError {
 					return true
@@ -179,20 +182,26 @@ func (r *Rule) Apply(v *Validation) (stop bool) {
 			// save filtered value.
 			v.filteredData[field] = val
 		}
-
-		// empty value AND is not required* AND skip on empty.
+		// Todo: Update validation and filtering flow
+		if val != nil{
+			// Customization: We need to bind all data
+			v.safeData[field] = val
+		}
+		// empty value AND skip on empty.
 		if r.skipEmpty && isNotRequired && IsEmpty(val) {
 			continue
 		}
 
 		// validate field value
 		if r.valueValidate(field, name, val, v) {
-			v.safeData[field] = val
+			if val != nil {
+				v.safeData[field] = val // save validated value.
+			}
 		} else { // build and collect error message
 			v.AddError(field, r.validator, r.errorMessage(field, r.validator, v))
 		}
 
-	// Customization: To validate all the fields we need to continue iterating rather stopping on single error.
+		// Customization: To validate all the fields we need to continue iterating rather stopping on single error.
 
 		// stop on error
 		/*if v.shouldStop() {
