@@ -725,6 +725,9 @@ type FormData struct {
 	// need to have more than one file per key, parse the
 	// files manually using r.MultipartForm.File.
 	Files map[string]*multipart.FileHeader
+	// jsonBodies holds the original body of the request.
+	// Only available for json requests.
+	jsonBodies []byte
 }
 
 func newFormData() *FormData {
