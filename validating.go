@@ -192,9 +192,12 @@ func (r *Rule) Apply(v *Validation) (stop bool) {
 			v.AddError(field, r.validator, r.errorMessage(field, r.validator, v))
 		}
 
-		if v.shouldStop() {
+	// Customization: To validate all the fields we need to continue iterating rather stopping on single error.
+
+		// stop on error
+		/*if v.shouldStop() {
 			return true
-		}
+		}*/
 	}
 
 	return false
