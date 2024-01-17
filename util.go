@@ -229,15 +229,15 @@ func CalcLength(val any) int {
 func valueCompare(srcVal, dstVal any, op string) (ok bool) {
 	srcVal = indirectValue(srcVal)
 
-	// string compare
-	if str1, ok := srcVal.(string); ok {
-		str2, err := strutil.ToString(dstVal)
-		if err != nil {
-			return false
-		}
+	// Customization: unused process - String values cannot be compare like integers values
+	// if str1, ok := srcVal.(string); ok {
+	// 	str2, err := strutil.ToString(dstVal)
+	// 	if err != nil {
+	// 		return false
+	// 	}
 
-		return strutil.VersionCompare(str1, str2, op)
-	}
+	// 	return strutil.VersionCompare(str1, str2, op)
+	// }
 
 	// as int or float to compare
 	return mathutil.Compare(srcVal, dstVal, op)

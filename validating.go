@@ -88,7 +88,7 @@ func (v *Validation) Validate(scene ...string) bool {
 
 	v.hasValidated = true
 	if v.hasError { // clear safe data on error.
-		v.safeData = make(map[string]any)
+		v.SaferData = make(map[string]any)
 	}
 	return v.IsSuccess()
 }
@@ -149,7 +149,7 @@ func (r *Rule) Apply(v *Validation) (stop bool) {
 			// dont need check default value
 			if !v.CheckDefault {
 				// save validated value.
-				v.safeData[field] = val
+				v.SaferData[field] = val
 				continue
 			}
 
@@ -185,7 +185,7 @@ func (r *Rule) Apply(v *Validation) (stop bool) {
 		// Todo: Update validation and filtering flow
 		if val != nil{
 			// Customization: We need to bind all data
-			v.safeData[field] = val
+			v.SaferData[field] = val
 		}
 		// empty value AND skip on empty.
 		if r.skipEmpty && isNotRequired && IsEmpty(val) {
@@ -195,7 +195,7 @@ func (r *Rule) Apply(v *Validation) (stop bool) {
 		// validate field value
 		if r.valueValidate(field, name, val, v) {
 			if val != nil {
-				v.safeData[field] = val // save validated value.
+				v.SaferData[field] = val // save validated value.
 			}
 		} else { // build and collect error message
 			v.AddError(field, r.validator, r.errorMessage(field, r.validator, v))
