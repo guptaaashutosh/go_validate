@@ -16,6 +16,7 @@ import (
 	"github.com/gookit/goutil/maputil"
 	"github.com/gookit/goutil/reflects"
 	"github.com/gookit/goutil/strutil"
+	"github.com/guptaaashutosh/go_validate/jsonutil"
 )
 
 const (
@@ -39,14 +40,21 @@ const (
 // data (Un)marshal func
 var (
 	Marshal   MarshalFunc   = json.Marshal
-	Unmarshal UnmarshalFunc = json.Unmarshal
+	//original
+	// Unmarshal UnmarshalFunc = json.Unmarshal
+	Unmarshal UnmarshalFunc = jsonutil.Unmarshal
 )
 
 type (
 	// MarshalFunc define
 	MarshalFunc func(v any) ([]byte, error)
+	//original
 	// UnmarshalFunc define
-	UnmarshalFunc func(data []byte, ptr any) error
+	// UnmarshalFunc func(data []byte, ptr any) error
+	// Modified
+	// Customization: use custom JSON Unmarshal to handle all unmarshalling errors.
+	// UnmarshalFunc define
+	UnmarshalFunc func(r *http.Request, data []byte, v interface{}) (int, error)
 )
 
 // DataFace data source interface definition
@@ -133,13 +141,24 @@ func (d *MapData) Validation(err ...error) *Validation {
 	return NewValidation(d)
 }
 
+//original
 // BindJSON binds v to the JSON data in the request body.
 // It calls json.Unmarshal and sets the value of v.
-func (d *MapData) BindJSON(ptr any) error {
+// func (d *MapData) BindJSON(ptr any) error {
+// 	if len(d.bodyJSON) == 0 {
+// 		return nil
+// 	}
+// 	return Unmarshal(d.bodyJSON, ptr)
+// }
+// Modified
+// Customization: use custom JSON Unmarshal to handle all unmarshalling errors.
+// BindJSON binds v to the JSON data in the request body.
+// It calls json.Unmarshal and sets the value of v.
+func (d *MapData) BindJSON(ptr interface{}) (int, error) {
 	if len(d.bodyJSON) == 0 {
-		return nil
+		return 0, nil
 	}
-	return Unmarshal(d.bodyJSON, ptr)
+	return Unmarshal(nil, d.bodyJSON, ptr)
 }
 
 /*************************************************************

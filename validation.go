@@ -38,9 +38,10 @@ type Validation struct {
 	data DataFace
 	// all validated fields list
 	// fields []string
-
+	//orginal
 	// save filtered/validated safe data
-	safeData M
+	// safeData M
+	SaferData M  // Customization: We need to update the typo of safeData to SaferData to access the variable outside the package for manual validation.
 	// filtered clean data
 	filteredData M
 	// save user custom set default values
@@ -116,7 +117,7 @@ func (v *Validation) ResetResult() {
 	v.hasFiltered = false
 	v.hasValidated = false
 	// result data
-	v.safeData = make(map[string]any)
+	v.SaferData = make(map[string]any)
 	v.filteredData = make(map[string]any)
 }
 
@@ -418,7 +419,7 @@ func (v *Validation) tryGet(key string) (val any, exist, zero bool) {
 	}
 
 	// find from validated data. (such as has default value)
-	if val, ok := v.safeData[key]; ok {
+	if val, ok := v.SaferData[key]; ok {
 		return val, true, false
 	}
 
@@ -461,7 +462,7 @@ func (v *Validation) Safe(key string) (val any, ok bool) {
 	if v.data == nil { // check input data
 		return
 	}
-	val, ok = v.safeData[key]
+	val, ok = v.SaferData[key]
 	return
 }
 
@@ -478,23 +479,46 @@ func (v *Validation) GetSafe(key string) any {
 }
 
 // BindStruct binding safe data to an struct.
-func (v *Validation) BindStruct(ptr any) error {
+// func (v *Validation) BindStruct(ptr any) error {
+// 	return v.BindSafeData(ptr)
+// }
+// Modified
+// Customization: use custom JSON Unmarshal to handle all unmarshalling errors.
+// BindStruct binding safe data to an struct.
+func (v *Validation) BindStruct(ptr interface{}) (int, error) {
 	return v.BindSafeData(ptr)
 }
 
+//original
 // BindSafeData binding safe data to an struct.
-func (v *Validation) BindSafeData(ptr any) error {
-	if len(v.safeData) == 0 { // no safe data.
-		return nil
+// func (v *Validation) BindSafeData(ptr any) error {
+// 	if len(v.safeData) == 0 { // no safe data.
+// 		return nil
+// 	}
+
+// 	// to json bytes
+// 	bts, err := Marshal(v.safeData)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	return Unmarshal(bts, ptr)
+// }
+// Modified
+// Customization: use custom JSON Unmarshal to handle all unmarshalling errors.
+// BindSafeData binding safe data to an struct.
+func (v *Validation) BindSafeData(ptr interface{}) (int, error) {
+	if len(v.SaferData) == 0 { // no safe data.
+		return 0, nil
 	}
 
 	// to json bytes
-	bts, err := Marshal(v.safeData)
+	bts, err := Marshal(v.SaferData)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return Unmarshal(bts, ptr)
+	return Unmarshal(nil, bts, ptr)
 }
 
 // Set value by key
@@ -566,7 +590,7 @@ func (v *Validation) IsFail() bool { return v.hasError }
 func (v *Validation) IsSuccess() bool { return !v.hasError }
 
 // SafeData get all validated safe data
-func (v *Validation) SafeData() M { return v.safeData }
+func (v *Validation) SafeData() M { return v.SaferData }
 
 // FilteredData return filtered data.
 func (v *Validation) FilteredData() M {

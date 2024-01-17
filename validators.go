@@ -901,6 +901,18 @@ func IsCIDR(s string) bool {
 	return err == nil
 }
 
+//original
+// IsJSON check if the string is valid JSON (note: uses json.Unmarshal).
+// func IsJSON(s string) bool {
+// 	if s == "" {
+// 		return false
+// 	}
+
+// 	var js json.RawMessage
+// 	return Unmarshal([]byte(s), &js) == nil
+// }
+// Modified
+// Customization: use custom JSON Unmarshal to handle all unmarshalling errors.
 // IsJSON check if the string is valid JSON (note: uses json.Unmarshal).
 func IsJSON(s string) bool {
 	if s == "" {
@@ -908,7 +920,8 @@ func IsJSON(s string) bool {
 	}
 
 	var js json.RawMessage
-	return Unmarshal([]byte(s), &js) == nil
+	_, err := Unmarshal(nil, []byte(s), &js)
+	return err == nil
 }
 
 // HasLowerCase check string has lower case

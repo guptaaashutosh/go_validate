@@ -161,7 +161,7 @@ func (r *FilterRule) Apply(v *Validation) (err error) {
 
 			// dont need check default value
 			if !v.CheckDefault {
-				v.safeData[field] = newVal // save validated value.
+				v.SaferData[field] = newVal // save validated value.
 				continue
 			}
 		}
@@ -185,7 +185,11 @@ func (r *FilterRule) Apply(v *Validation) (err error) {
 		if err != nil {
 			return err
 		}
-
+		// Customization: We need to overwrite original field value with filtered/converted value because filtered/converted value was not being loaded in struct while calling BindSafeData().
+		if v.SaferData[field] != "" {
+			// save filtered value.
+			v.SaferData[field] = newVal
+		}
 		// save filtered value.
 		v.filteredData[field] = newVal
 	}
