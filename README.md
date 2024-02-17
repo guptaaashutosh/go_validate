@@ -850,3 +850,6 @@ filter/aliases | description
 ## License
 
 **[MIT](LICENSE)**
+
+
+`Reference : ` https://github.com/gookit/validate
